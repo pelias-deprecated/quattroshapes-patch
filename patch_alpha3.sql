@@ -1,3 +1,5 @@
+-- Given a table name, add a column `centroid (Geometry)` to it, populate it
+-- with the centroid of each row's `geom`, and create a `gist` index on it.
 create or replace function mz_CreateCentroids(table_name text)
 returns void as $$
 	begin
@@ -11,6 +13,11 @@ returns void as $$
 	end
 $$ language plpgsql;
 
+-- Given a table name, create a table `${table_name}_container_polygons`, and
+-- populate it with all of records in that table whose alpha3 values mismatches
+-- their container adm0 polygon's alpha3 values. These will be patched by
+-- `mz_PatchAlpha3Values()`, and will be used to update the original table
+-- `table_name`.
 create or replace function mz_FindContainerPolygons(table_name text)
 returns void as $$
 	declare
@@ -21,7 +28,7 @@ returns void as $$
 			'create table %1$s_container_polygons as
 			select child.gid as child_gid,
 				parent.iso3 as parent_a3
-			from adm0 parent
+			from canonical_adm0 parent
 			join %1$s child
 			on parent.geom && child.centroid and
 				st_contains(parent.geom, child.centroid) and
@@ -32,6 +39,9 @@ returns void as $$
 	end
 $$ language plpgsql;
 
+-- Given a table name, patch its alpha3 values using the mismatches in
+-- `${table_name}_container_polygons`; then, delete the container-polygons
+-- table, and the `table_name` table's centroid index.
 create or replace function mz_PatchAlpha3Values(table_name text)
 returns void as $$
 	begin
@@ -51,10 +61,13 @@ returns void as $$
 	end
 $$ language plpgsql;
 
+-- Patch Alpha3 values in all quattroshapes tables using the `canonical_adm0`
+-- table.
 do $$
 	declare
 		table_names text[] := array[
-			'qs_adm0', 'qs_adm1', 'qs_adm2', 'qs_localadmin', 'qs_localities'
+			'qs_adm0', 'qs_adm1', 'qs_adm2', 'qs_localadmin', 'qs_localities',
+			'qs_neighborhoods'
 		];
 		table_name varchar;
 	begin
