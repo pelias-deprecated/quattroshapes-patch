@@ -1,3 +1,15 @@
+-- Given a table name, simplify its geometry column by a factor of 0.0001.
+create or replace function mz_SimplifyGeometry(table_name text)
+returns void as $$
+	begin
+		raise info 'Simplifying geometries in %s.', table_name;
+		execute format(
+			'update %s set geom = st_simplify(geom, 0.0001);',
+			table_name
+		);
+	end
+$$ language plpgsql;
+
 -- Given a table name, add a column `centroid (Geometry)` to it, populate it
 -- with the centroid of each row's `geom`, and create a `gist` index on it.
 create or replace function mz_CreateCentroids(table_name text)
@@ -44,6 +56,8 @@ $$ language plpgsql;
 -- table, and the `table_name` table's centroid index.
 create or replace function mz_PatchAlpha3Values(table_name text)
 returns void as $$
+	declare
+		query_string text;
 	begin
 		raise info 'Patching alpha3 values in %s using container polygons.',
 			table_name;
@@ -75,6 +89,7 @@ do $$
 
 		foreach table_name in array table_names
 		loop
+			perform mz_SimplifyGeometry(table_name);
 			perform mz_CreateCentroids(table_name);
 			perform mz_FindContainerPolygons(table_name);
 			perform mz_PatchAlpha3Values(table_name);
