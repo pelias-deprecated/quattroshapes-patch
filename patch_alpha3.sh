@@ -11,13 +11,18 @@ quattro_psql(){
 }
 
 main(){
-	adm0PolysZip="TM_WORLD_BORDERS-0.3.zip"
+	local adm0PolysZip="TM_WORLD_BORDERS-0.3.zip"
 	local adm0PolysUrl="http://thematicmapping.org/downloads/$adm0PolysZip"
 
 	echo "Downloading/unzipping canonical_adm0 polygons."
+
+	local adm0DestDir="canonical_adm0_shp"
+	mkdir "$adm0DestDir"
+	cd "$adm0DestDir"
 	wget --quiet "$adm0PolysUrl"
 	unzip "$adm0PolysZip" > /dev/null
 	rm "$adm0PolysZip"
+	cd ..
 
 	echo "Importing canonical_adm0 polygons."
 	shp2pgsql -WLATIN1 -s SRID=4326 TM_WORLD_BORDERS-0.3.shp canonical_adm0 |\
