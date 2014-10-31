@@ -7,7 +7,7 @@
 #   bash patch_alpha3.sh
 
 quattro_psql(){
-	psql -d quattroshapes -v ON_ERROR_STOP=1 $* > /dev/null 2>&1
+	psql -d quattroshapes -v ON_ERROR_STOP=1 $* > /dev/null
 }
 
 main(){
@@ -22,12 +22,11 @@ main(){
 	wget --quiet "$adm0PolysUrl"
 	unzip "$adm0PolysZip" > /dev/null
 	rm "$adm0PolysZip"
-	cd ..
 
 	echo "Importing canonical_adm0 polygons."
-	shp2pgsql -WLATIN1 -s SRID=4326 TM_WORLD_BORDERS-0.3.shp canonical_adm0 |\
+	shp2pgsql -WLATIN1 -s 4326 TM_WORLD_BORDERS-0.3.shp canonical_adm0 2> /dev/null |\
 		quattro_psql
-
+	cd ..
 	quattro_psql -f patch_alpha3.sql
 }
 
