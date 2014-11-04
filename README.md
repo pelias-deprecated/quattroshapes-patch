@@ -5,6 +5,7 @@ A collection of all the scripts (mainly **shell**/**SQL**) that we use to patch 
 Quattroshapes into revised shapefiles:
 
 ```bash
+$ git submodule init && git submodule update
 $ bash process.sh
 ```
 
