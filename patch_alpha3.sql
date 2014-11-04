@@ -53,7 +53,7 @@ $$ language plpgsql;
 
 -- Given a table name, patch its alpha3 values using the mismatches in
 -- `${table_name}_container_polygons`; then, delete the container-polygons
--- table, and the `table_name` table's centroid index.
+-- table, the `table_name` table's centroid index, and its `centroid` column.
 create or replace function mz_PatchAlpha3Values(table_name text)
 returns void as $$
 	declare
@@ -68,7 +68,8 @@ returns void as $$
 			where original.gid = intersection.child_gid;
 
 			drop table %1$s_container_polygons;
-			drop index %1$s_centroid_index;',
+			drop index %1$s_centroid_index;
+			alter table %1$s drop centroid;',
 			table_name
 		);
 		execute(query_string);
