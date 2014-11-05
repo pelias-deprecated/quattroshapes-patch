@@ -44,7 +44,8 @@ returns void as $$
 			join %1$s child
 			on parent.geom && child.centroid and
 				st_contains(parent.geom, child.centroid) and
-				parent.iso3 != child.qs_adm0_a3;',
+				(child.qs_adm0_a3 is null or
+				parent.iso3 != child.qs_adm0_a3);',
 			table_name
 		);
 		execute(query_string);
