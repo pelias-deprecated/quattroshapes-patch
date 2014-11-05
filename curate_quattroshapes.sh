@@ -18,7 +18,7 @@ tar czf quattroshapes-simplified.tar.gz ./simplified
 # split alpha3
 mkdir -p quattroshapes-alpha3/compressed
 
-for i in $(cat /var/lib/postgresql/alpha3.csv); do
+for i in $(cat alpha3.csv); do
   mkdir quattroshapes-alpha3/${i}
   ogr2ogr -f "ESRI Shapefile" -where "qs_adm0_a3 = '${i}'" quattroshapes-alpha3/${i}/${i}_admin0.shp        simplified/qs_adm0.shp
   ogr2ogr -f "ESRI Shapefile" -where "qs_adm0_a3 = '${i}'" quattroshapes-alpha3/${i}/${i}_admin1.shp        simplified/qs_adm1.shp
