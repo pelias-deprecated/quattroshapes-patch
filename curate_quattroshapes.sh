@@ -27,7 +27,5 @@ for i in $(cat /var/lib/postgresql/alpha3.csv); do
   ogr2ogr -f "ESRI Shapefile" -where "qs_adm0_a3 = '${i}'" quattroshapes-alpha3/${i}/${i}_localities.shp    simplified/qs_localities.shp
   ogr2ogr -f "ESRI Shapefile" -where "qs_adm0_a3 = '${i}'" quattroshapes-alpha3/${i}/${i}_neighborhoods.shp simplified/qs_neighborhoods.shp
 
-  cd quattroshapes-alpha3
-  tar czf compressed/${i}.tgz ${i}
-  cd ..
+  tar czf quattroshapes-alpha3/compressed/${i}.tgz -C quattroshapes-alpha3 ${i}
 done
