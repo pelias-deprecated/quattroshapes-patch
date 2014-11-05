@@ -22,7 +22,7 @@ main(){
 	for shp in ${shapefiles[@]}; do
 		echo "Exporting $shp table."
 		mkdir "$shp"
-		pgsql2shp -f "$shp/$shp.shp" quattroshapes "$shp" > /dev/null 2>&1
+		pgsql2shp -k -f "$shp/$shp.shp" quattroshapes "$shp" > /dev/null 2>&1
 	done
 }
 
