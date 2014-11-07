@@ -13,7 +13,7 @@ types="qs_adm0 qs_adm1 qs_adm2 qs_localities qs_localadmin qs_neighborhoods"
 for i in ${types}; do
   mv exported_quattroshapes/${i}/* simplified
 done
-tar czf quattroshapes-simplified.tar.gz ./simplified
+tar czf quattroshapes-simplified.tar.gz simplified
 
 # split alpha3
 mkdir -p quattroshapes-alpha3/compressed
