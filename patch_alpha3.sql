@@ -16,9 +16,9 @@ create or replace function mz_CreateCentroids(table_name text)
 returns void as $$
 	begin
 		raise info 'Creating centroids for %s.', table_name;
+		perform AddGeometryColumn(table_name, 'centroid', 4326, 'POINT', 2);
 		execute format(
-			'alter table %1$s add centroid Geometry;
-			update %1$s set centroid = st_centroid(geom);
+			'update %1$s set centroid = st_centroid(geom);
 			create index %1$s_centroid_index on %1$s using gist(centroid);',
 			table_name
 		);
@@ -69,8 +69,7 @@ returns void as $$
 			where original.gid = intersection.child_gid;
 
 			drop table %1$s_container_polygons;
-			drop index %1$s_centroid_index;
-			alter table %1$s drop centroid;',
+			drop index %1$s_centroid_index;',
 			table_name
 		);
 		execute(query_string);
