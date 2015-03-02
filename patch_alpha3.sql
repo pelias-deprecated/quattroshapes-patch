@@ -4,7 +4,8 @@ returns void as $$
 	begin
 		raise info 'Simplifying geometries in %s.', table_name;
 		execute format(
-			'update %s set geom = st_simplify(geom, 0.0001);',
+			'update %1$s set geom = st_simplify(geom, 0.0001);
+			create index %1$s_geom_index on %1$s using gist(geom);',
 			table_name
 		);
 	end
