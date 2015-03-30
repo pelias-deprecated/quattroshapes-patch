@@ -21,6 +21,7 @@ main(){
 	bash import_quattroshapes/import_quattroshapes_pgsql.sh
 	bash patch_alpha3.sh
 	exec_sql_script patch_popularity.sql
+	exec_sql_script clean_data.sql
 	bash export_shapefiles.sh
 }
 
