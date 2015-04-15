@@ -20,3 +20,22 @@ returns void as $$
 		end loop;
 	end
 $$ language plpgsql;
+
+-- Some geometries are null, and are thus useless for our purposes. Remove
+-- them.
+select ForEachQuattroTable('delete from %s where geom is null;');
+
+-- Simplify all geometries to speed up processing, since some are way too
+-- detailed. Also, build an index for them.
+select ForEachQuattroTable('
+update %1$s set geom = st_simplify(geom, 0.0001);
+create index %1$s_geom_index on %1$s using gist(geom);'
+);
+
+-- Compute the centroids of all geometries and build an index for them, since
+-- they're necessary for some processing.
+select ForEachQuattroTable('
+perform AddGeometryColumn(''%1$s'', ''centroid'', 4326, 'POINT', 2);
+update %1$s set centroid = st_centroid(geom);
+create index %1$s_centroid_index on %1$s using gist(centroid);',
+);

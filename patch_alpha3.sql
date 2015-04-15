@@ -1,31 +1,3 @@
--- Given a table name, simplify its geometry column by a factor of 0.0001.
-create or replace function mz_SimplifyGeometry(table_name text)
-returns void as $$
-	begin
-		raise info 'Simplifying geometries in %s.', table_name;
-		execute format(
-			'update %1$s set geom = st_simplify(geom, 0.0001);
-			create index %1$s_geom_index on %1$s using gist(geom);',
-			table_name
-		);
-	end
-$$ language plpgsql;
-
--- Given a table name, add a column `centroid (Geometry)` to it, populate it
--- with the centroid of each row's `geom`, and create a `gist` index on it.
-create or replace function mz_CreateCentroids(table_name text)
-returns void as $$
-	begin
-		raise info 'Creating centroids for %s.', table_name;
-		perform AddGeometryColumn(table_name, 'centroid', 4326, 'POINT', 2);
-		execute format(
-			'update %1$s set centroid = st_centroid(geom);
-			create index %1$s_centroid_index on %1$s using gist(centroid);',
-			table_name
-		);
-	end
-$$ language plpgsql;
-
 -- Given a table name, create a table `${table_name}_container_polygons`, and
 -- populate it with all of records in that table whose alpha3 values mismatches
 -- their container adm0 polygon's alpha3 values. These will be patched by
@@ -79,8 +51,6 @@ $$ language plpgsql;
 
 alter table qs_neighborhoods add qs_adm0_a3 varchar(3);
 select ForEachQuattroTable('
-perform mz_SimplifyGeometry(%1$s);
-perform mz_CreateCentroids(%1$s);
 perform mz_FindContainerPolygons(%1$s);
 perform mz_PatchAlpha3Values(%1$s);
 ');
