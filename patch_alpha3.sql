@@ -77,24 +77,10 @@ returns void as $$
 	end
 $$ language plpgsql;
 
--- Patch Alpha3 values in all quattroshapes tables using the `canonical_adm0`
--- table.
-do $$
-	declare
-		table_names text[] := array[
-			'qs_adm0', 'qs_adm1', 'qs_adm2', 'qs_localadmin', 'qs_localities',
-			'qs_neighborhoods'
-		];
-		table_name varchar;
-	begin
-		alter table qs_neighborhoods add qs_adm0_a3 varchar(3);
-
-		foreach table_name in array table_names
-		loop
-			perform mz_SimplifyGeometry(table_name);
-			perform mz_CreateCentroids(table_name);
-			perform mz_FindContainerPolygons(table_name);
-			perform mz_PatchAlpha3Values(table_name);
-		end loop;
-	end
-$$;
+alter table qs_neighborhoods add qs_adm0_a3 varchar(3);
+select ForEachQuattroTable('
+perform mz_SimplifyGeometry(%1$s);
+perform mz_CreateCentroids(%1$s);
+perform mz_FindContainerPolygons(%1$s);
+perform mz_PatchAlpha3Values(%1$s);
+');

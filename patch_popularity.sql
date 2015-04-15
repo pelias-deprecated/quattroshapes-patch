@@ -56,16 +56,7 @@ returns void as $$
 	end
 $$ language plpgsql;
 
-do $$
-	declare
-		table_names text[] := array[
-			'qs_adm0', 'qs_adm1', 'qs_adm2', 'qs_localadmin', 'qs_localities'
-		];
-		table_name varchar;
-	begin
-		foreach table_name in array table_names
-		loop
-			perform PatchPopularity(table_name);
-		end loop;
-	end
-$$;
+select ForEachQuattroTable(
+	'perform PatchPopularity(%s)',
+	array['qs_adm0', 'qs_adm1', 'qs_adm2', 'qs_localadmin', 'qs_localities']
+);
