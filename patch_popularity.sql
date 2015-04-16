@@ -57,6 +57,6 @@ returns void as $$
 $$ language plpgsql;
 
 select ForEachQuattroTable(
-	'perform PatchPopularity(%s)',
+	'select PatchPopularity(''%s'');',
 	array['qs_adm0', 'qs_adm1', 'qs_adm2', 'qs_localadmin', 'qs_localities']
 );

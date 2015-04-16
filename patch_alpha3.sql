@@ -51,6 +51,6 @@ $$ language plpgsql;
 
 alter table qs_neighborhoods add qs_adm0_a3 varchar(3);
 select ForEachQuattroTable('
-perform mz_FindContainerPolygons(%1$s);
-perform mz_PatchAlpha3Values(%1$s);
-');
+select mz_FindContainerPolygons(''%1$s'');
+select mz_PatchAlpha3Values(''%1$s'');'
+);

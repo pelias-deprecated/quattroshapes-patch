@@ -5,7 +5,7 @@
 -- additional argument: a table name.
 create or replace function ForEachQuattroTable(
 	query text,
-	table_names text[] DEFAULT array[
+	table_names text[] default Array[
 			'qs_adm0', 'qs_adm1', 'qs_adm2', 'qs_localadmin', 'qs_localities',
 			'qs_neighborhoods'
 		]
@@ -16,14 +16,14 @@ returns void as $$
 	begin
 		foreach table_name in array table_names
 		loop
-			raise notice '%', format(query, table_name);
+			execute format(query, table_name);
 		end loop;
 	end
 $$ language plpgsql;
 
 -- Some geometries are null, and are thus useless for our purposes. Remove
 -- them.
-select ForEachQuattroTable('delete from %s where geom is null;');
+select ForEachQuattroTable('delete from %s where geom is null or st_isempty(geom);');
 
 -- Simplify all geometries to speed up processing, since some are way too
 -- detailed. Also, build an index for them.
@@ -35,7 +35,7 @@ create index %1$s_geom_index on %1$s using gist(geom);'
 -- Compute the centroids of all geometries and build an index for them, since
 -- they're necessary for some processing.
 select ForEachQuattroTable('
-perform AddGeometryColumn(''%1$s'', ''centroid'', 4326, 'POINT', 2);
+select AddGeometryColumn(''%1$s'', ''centroid'', 4326, ''POINT'', 2);
 update %1$s set centroid = st_centroid(geom);
-create index %1$s_centroid_index on %1$s using gist(centroid);',
+create index %1$s_centroid_index on %1$s using gist(centroid);'
 );
