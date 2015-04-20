@@ -19,9 +19,11 @@ main(){
 	done
 
 	bash import_quattroshapes/import_quattroshapes_pgsql.sh
+	exec_sql_script pre.sql
 	bash patch_alpha3.sh
 	exec_sql_script patch_popularity.sql
 	exec_sql_script clean_data.sql
+	exec_sql_script post.sql
 	bash export_shapefiles.sh
 }
 
