@@ -21,16 +21,16 @@ returns void as $$
 	end
 $$ language plpgsql;
 
--- Some geometries are null, and are thus useless for our purposes. Remove
--- them.
-select ForEachQuattroTable('delete from %s where geom is null or st_isempty(geom);');
-
 -- Simplify all geometries to speed up processing, since some are way too
 -- detailed. Also, build an index for them.
 select ForEachQuattroTable('
 update %1$s set geom = st_simplify(geom, 0.0001);
 create index %1$s_geom_index on %1$s using gist(geom);'
 );
+
+-- Some geometries are null, and are thus useless for our purposes. Remove
+-- them.
+select ForEachQuattroTable('delete from %s where geom is null or st_isempty(geom);');
 
 -- Compute the centroids of all geometries and build an index for them, since
 -- they're necessary for some processing.
